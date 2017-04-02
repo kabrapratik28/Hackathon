@@ -1,0 +1,74 @@
+<html>
+  <head>
+    <title>Video Streaming Demonstration</title>
+    <script src="../static/js/stop.js" type="text/javascript"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
+  </head>
+  <body>
+  <label id="label"></label>
+    <script>
+  var source = new EventSource('/event_stream');
+  source.onmessage = function(event){
+      alert(event.data);
+      //document.getElementById("label").innerHTML = event.data;
+
+
+var dps = []; // dataPoints
+
+    
+  
+    var chart = new CanvasJS.Chart("chartContainer",{
+      title :{
+        text: "InterestingFactor"
+      },      
+      data: [{
+        type: "line",
+        dataPoints: dps 
+      }]
+    });
+
+    var xVal = 0;
+    var yVal = 100; 
+    var updateInterval = 1000;
+    var dataLength = 500; // number of dataPoints visible at any point
+
+    var updateChart = function (count) {
+      count = count || 1;
+      // count is number of times loop runs to generate random dataPoints.
+      var mydata = JSON.parse(event.data);
+      //alert(mydata[0].scores.happiness);
+      for (var j = 0; j < count; j++) { 
+        yVal = mydata[0].scores.happiness;
+        dps.push({
+          x: xVal,
+          y: yVal
+        });
+        xVal+=10;
+      };
+      if (dps.length > dataLength)
+      {
+        dps.shift();        
+      }
+      
+      chart.render();   
+
+    };
+
+    // generates first set of dataPoints
+    updateChart(dataLength); 
+
+    // update chart after specified time. 
+    setInterval(function(){updateChart()}, updateInterval);
+
+
+
+
+  };
+</script>
+
+  <div id="chartContainer" style="height: 300px; width:100%;">
+  </div>
+
+  </body>
+</html>

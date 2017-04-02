@@ -1,0 +1,65 @@
+<html itemscope itemtype="http://schema.org/Article">
+<head>
+    <title>Bioinformatics Pipeline</title>
+    <!-- BEGIN Pre-requisites -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+    <!-- END Pre-requisites -->
+    <script>
+        function start() {
+            gapi.load('auth2', function () {
+                auth2 = gapi.auth2.init({
+                    client_id: '942390511199-8hm280333uood463f61jblfc220dlhju.apps.googleusercontent.com',
+                    scope: 'https://www.googleapis.com/auth/fitness.body.read',
+                    prompt: 'consent',
+                    immediate: 'true'
+
+                });
+            });
+        }
+    </script>
+
+</head>
+<body>
+This is the homepage for Bioinformatics Pipeline
+<button id="signinButton">Sign in with Google</button>
+<script>
+    $('#signinButton').click(function () {
+        // signInCallback defined in step 6.
+        auth2.grantOfflineAccess({'redirect_uri': 'postmessage'}).then(signInCallback);
+    });
+</script>
+<script>
+    function signInCallback(authResult) {
+        if (authResult['code']) {
+
+            // Hide the sign-in button now that the user is authorized, for example:
+            $('#signinButton').attr('style', 'display: none');
+
+            // Send the code to the server
+            var authcode = {'authcode': authResult['code']}
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:5000/connect',
+                contentType: 'application/octet-stream; charset=utf-8',
+                success: function (result) {
+                    // Handle or verify the server response.
+                    if (result['status'] == 'ok') {
+                        window.location.href = "/video_feed";
+                    }
+                    else{
+                        window.location.href = "/error";
+                    }
+                },
+                processData: false,
+                data: JSON.stringify(authcode),
+                dataType: 'json'
+            });
+        } else {
+            // There was an error.
+        }
+    }
+</script>
+
+</body>
+</html>
